@@ -195,6 +195,14 @@ a.ext{color:var(--c-strong)}
   .controls{margin-left:0}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+details.fold{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+details.fold>summary{list-style:none;display:flex;align-items:center;gap:8px;font-family:var(--display);font-size:15px;letter-spacing:.05em;color:var(--muted)}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::before{content:"";width:0;height:0;border-left:6px solid currentColor;border-top:4.5px solid transparent;border-bottom:4.5px solid transparent;transition:transform .15s;flex:none}
+details.fold[open]>summary::before{transform:rotate(90deg)}
+details.fold>summary:hover{color:var(--ink)}
+details.fold>summary:focus{outline:none}
+details.fold>summary:focus-visible{outline:2px solid var(--c-strong);outline-offset:2px}
 </style>
 
 </head>
@@ -563,15 +571,19 @@ function renderWorks(){
   panel.querySelectorAll(".worklist li[data-w]").forEach(li=>{const go=()=>{state.work=state.work===li.dataset.w?"":li.dataset.w;ws.value=state.work;applyFilters();renderWorks();if(state.work)zoomTo(nodes.filter(n=>n.w.includes(state.work)&&visibleNode(n)),1.6);else fit();};li.addEventListener("click",go);li.addEventListener("keydown",e=>{if(e.key==="Enter")go();});});
 }
 function authorList(arr){return `<ul class="conns">${arr.map(x=>{const s=AUTHOR_SOURCES[x.s];return `<li class="ref C"><div class="why" style="color:var(--ink)">${inl(x.x)}</div><div class="src"><a class="ext" href="${s.url}" target="_blank" rel="noopener">${esc(s.t)}</a> · ${esc(s.by)}, ${s.y}</div></li>`;}).join("")}</ul>`;}
+const refsOpen=new Set();
 function renderRefs(){
   const rows=[];Object.entries(REFS).forEach(([id,rs])=>rs.forEach(r=>rows.push({id,r})));
-  let html=`<h2>References</h2><p>Allusions to literature, myth, religion, art and the wider Warhammer 40,000 setting. Graded <b>Clear</b> (the name or phrase matches directly, or the author has said so), <b>Likely</b>, <b>Possible</b> or <b>Tenuous</b>. Apart from those marked as the author's, these are readings.</p><h3>From the author<span class="pill rC">${AUTHOR.length}</span></h3><p style="font-size:13.5px;color:var(--muted)">Paraphrased from published interviews, with links. In them Fehervari neither confirms nor denies any of the character identities discussed here.</p>${authorList(AUTHOR)}`;
+  const fold=(key,label,pill,count,inner)=>`<details class="fold" data-k="${key}"${refsOpen.has(key)?" open":""}><summary><span class="fold-h">${label}</span><span class="pill ${pill}">${count}</span></summary>${inner}</details>`;
+  let html=`<h2>References</h2><p>Allusions to literature, myth, religion, art and the wider Warhammer 40,000 setting. Graded <b>Clear</b> (the name or phrase matches directly, or the author has said so), <b>Likely</b>, <b>Possible</b> or <b>Tenuous</b>. Apart from those marked as the author's, these are readings. Click a heading to open it.</p>`;
+  html+=fold("author","From the author","rC",AUTHOR.length,`<p style="font-size:13.5px;color:var(--muted)">Paraphrased from published interviews, with links. In them Fehervari neither confirms nor denies any of the character identities discussed here.</p>${authorList(AUTHOR)}`);
   Object.entries(RCAT).forEach(([k,label])=>{
     const grp=rows.filter(x=>x.r[0]===k&&okW(byId[x.id].w)).sort((a,b)=>"CSPT".indexOf(a.r[1])-"CSPT".indexOf(b.r[1])||byId[a.id].n.localeCompare(byId[b.id].n));
     if(!grp.length)return;
-    html+=`<h3>${label}<span class="pill rS">${grp.length}</span></h3><ul class="conns">${grp.map(x=>`<li class="ref ${x.r[1]}"><a data-id="${x.id}" tabindex="0">${esc(byId[x.id].n)}</a><span class="pill r${x.r[1]}">${RCONF[x.r[1]]}</span><div class="why">${inl(x.r[2])}</div></li>`).join("")}</ul>`;
+    html+=fold(k,label,"rS",grp.length,`<ul class="conns">${grp.map(x=>`<li class="ref ${x.r[1]}"><a data-id="${x.id}" tabindex="0">${esc(byId[x.id].n)}</a><span class="pill r${x.r[1]}">${RCONF[x.r[1]]}</span><div class="why">${inl(x.r[2])}</div></li>`).join("")}</ul>`);
   });
   panel.innerHTML=html;bindPanel();
+  panel.querySelectorAll("details.fold").forEach(d=>d.addEventListener("toggle",()=>{d.open?refsOpen.add(d.dataset.k):refsOpen.delete(d.dataset.k);}));
 }
 function renderOpen(){
   panel.innerHTML=`<h2>Open questions</h2><p>What the stories leave open, with the evidence on each side. <i>Cold Covenant</i> and <i>Blindsight</i> are not yet covered.</p>${gate("questions",ALLW,QUESTIONS.map(q=>`<div class="q"><b>${esc(q.q)}</b><p>${inl(q.b)}</p></div>`).join(""))}`;bindPanel();bindReveal(panel,renderOpen);
