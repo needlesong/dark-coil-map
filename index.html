@@ -35,6 +35,8 @@ h1 small{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--m
 .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-left:auto}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--raised);color:var(--ink);font:inherit;font-size:14px;cursor:pointer;user-select:none}
 .chip[aria-pressed="false"]{opacity:.42}
+.node:focus,.cluster-label:focus,#graph:focus{outline:none}
+.node:focus-visible circle{stroke:var(--c-strong);stroke-width:3px}
 .chip:focus-visible,select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--c-strong);outline-offset:2px}
 .sw{width:22px;height:0;border-top:2px solid currentColor}
 .sw.conf{color:var(--c-conf)} .sw.strong{color:var(--c-strong);border-top-style:dashed} .sw.spec{color:var(--c-spec);border-top-style:dotted;border-top-width:3px} .sw.echo{color:var(--c-echo);border-top-style:dashed;opacity:.8} .sw.motif{color:var(--c-motif)}
