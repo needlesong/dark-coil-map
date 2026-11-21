@@ -2,6 +2,9 @@
 
 An interactive, spoiler-aware map of Peter Fehervari's Dark Coil.
 
+**[Open the map](https://needlesong.github.io/dark-coil-map/)**
+
+
 ## What's in it
 
 - **The map.** Characters, places, factions, objects and recurring phrases across 19 stories. Zoom in and the entries spread out to make room for their names.
